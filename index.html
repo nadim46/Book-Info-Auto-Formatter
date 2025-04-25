@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📘 Book Info Auto Formatter</title>
+  <style>
+    /* Basic Styles */
+    body {
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 2rem;
+      max-width: 700px;
+      margin: auto;
+      transition: background 0.5s ease;
+    }
+
+    h2 {
+      text-align: center;
+      color: #a3e4ff;
+      animation: glowing 1.5s infinite alternate;
+    }
+
+    /* Glowing Animation for Text */
+    @keyframes glowing {
+      0% { color: #fff; text-shadow: 0 0 5px #fff, 0 0 10px #a3e4ff, 0 0 15px #a3e4ff; }
+      100% { color: #a3e4ff; text-shadow: 0 0 20px #fff, 0 0 30px #a3e4ff, 0 0 40px #a3e4ff; }
+    }
+
+    /* Input and Button Styles */
+    textarea, input {
+      width: 98%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background: #2c2f4a;
+      color: #fff;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: linear-gradient(90deg, #00dbde, #fc00ff);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn:hover {
+      background: linear-gradient(90deg, #fc00ff, #00dbde);
+      transform: scale(1.05);
+    }
+
+    .btn:active {
+      transform: scale(1);
+    }
+
+    /* Output Box */
+    #output {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      border: 1px solid #444;
+      min-height: 100px;
+    }
+
+    /* Light/Dark Mode Button */
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #1a1a2e;
+      color: white;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Light Mode Styles */
+    .light-mode {
+      background: linear-gradient(to right, #ff7e5f, #feb47b);
+    }
+
+    .light-mode h2 {
+      color: #000;
+      animation: glowing 1.5s infinite alternate;
+    }
+
+    /* Dark Mode Styles */
+    .dark-mode {
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+    }
+
+    /* Preview Container */
+    #preview-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #preview-container img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>📘 Book Info Auto Formatter</h2>
+  <textarea id="input" rows="3" placeholder="Just Paste the Tab-separated Data Line Below"></textarea>
+  
+  <!-- Buttons -->
+  <div class="button-container">
+    <button class="btn" onclick="formatBookInfo()">Generate Info</button>
+    <button class="btn" onclick="downloadOutput()">Download</button>
+    <button class="btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+  </div>
+
+  <div id="output"></div>
+
+  <div id="preview-container">
+    <h3>Made by NDK</h3>
+    <img id="book-cover-preview" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/1200px-Amazon_logo.svg" alt="Only for Personal Uses">
+  </div>
+
+  <div class="toggle-btn" onclick="toggleDarkMode()">🌙</div>
+
+  <script>
+    let isDarkMode = true;
+
+    function formatBookInfo() {
+      const input = document.getElementById("input").value.trim();
+      const parts = input.split(/\t|\s{2,}/);
+
+      const author = parts[0] || "";
+      const title = parts[1] || "";
+      const subtitle = parts[2] || "";
+      const recipe = parts[6] || "";
+      const note = parts[7] || "";
+      const pages = parts[8] || "";
+      const sizesRaw = parts[9] || "";
+
+      // Extract sizes
+      let ppr = "";
+      let hrd = "";
+      let kindle = "";
+      const sizeParts = sizesRaw.split(",").map(s => s.trim());
+
+      sizeParts.forEach(size => {
+        if (size.includes("8.5")) ppr = size.replace("-", "/");
+        else if (size.includes("8.25")) hrd = size.replace("-", "/");
+        else kindle = size;
+      });
+
+      const formatted = `Title: ${title}
+Subtitle: ${subtitle}
+Author: ${author}
+
+Notes: Interio ${note} Pictures
+Recipe: ${recipe}
+
+===SIZE===\n` +
+        `Paperback (PDF): ${ppr} == Pages: ${pages}\n` +
+        `Hardcover (PDF): ${hrd} == Pages: ${pages}\n` +
+        `Kindle: 28.5/22in == JPG ${kindle}`;
+
+      document.getElementById("output").innerText = formatted;
+      updateCoverPreview(title);
+    }
+
+    function downloadOutput() {
+      const content = document.getElementById("output").innerText;
+      const blob = new Blob([content], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "book-info.txt";
+      a.click();
+    }
+
+    function copyToClipboard() {
+      const content = document.getElementById("output").innerText;
+      navigator.clipboard.writeText(content).then(() => {
+        alert("Content copied to clipboard!");
+      });
+    }
+
+    function toggleDarkMode() {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('light-mode', !isDarkMode);
+      document.body.classList.toggle('dark-mode', isDarkMode);
+    }
+
+    function updateCoverPreview(title) {
+      const coverPreview = document.getElementById('book-cover-preview');
+      // You can implement logic here to update the image URL dynamically based on title or other data
+      coverPreview.src = `https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/1200px-Amazon_logo.svg.png`;
+    }
+  </script>
+</body>
+</html>
