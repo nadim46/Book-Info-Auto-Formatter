@@ -30,12 +30,13 @@
 
     /* Input and Button Styles */
     textarea, input {
-      width: 98%;
+      width: 97%;
+      min-height: 100px;
       padding: 10px;
       margin-top: 10px;
       font-size: 16px;
       border-radius: 8px;
-      border: none;
+      border: 1px solid #444;
       background: #2c2f4a;
       color: #fff;
     }
@@ -186,7 +187,7 @@ Recipe: ${recipe}
       const blob = new Blob([content], { type: "text/plain" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "book-info.txt";
+      a.download = "Book-Info.txt";
       a.click();
     }
 
